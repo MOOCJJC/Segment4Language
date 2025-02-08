@@ -1,0 +1,12 @@
+name: english_learning
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - streamlit
+  - openai
+  - pydub
+  - nltk
+  - python-dotenv
+  - ffmpeg
