@@ -33,7 +33,7 @@ OPENAI_API_KEY=your_api_key_here
 ```
 
 5. Install `ffmpeg` with `libmp3lame` encoder:
-   - Download the `ffmpeg` package from [FFmpeg official website](https://ffmpeg.org/download.html) or use a package manager like `conda` or `brew`.
+   - Download the `ffmpeg` package from [FFmpeg official website](https://ffmpeg.org/download.html). We will need the `ffmpeg` with LAME support. For Windows, you can get it from [Binary Builds from gyan](https://www.gyan.dev/ffmpeg/builds/)
    - Ensure that the `ffmpeg` binary is accessible in your system's PATH.
 
 6. Run the application:
