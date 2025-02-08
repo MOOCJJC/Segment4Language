@@ -117,19 +117,17 @@ st.title("English Learning Assistant")
 # Text input
 chinese_text = st.text_area("Enter Chinese text:", height=150)
 
-if 'translation_done' not in st.session_state:
-    st.session_state.translation_done = False
-
-# Clear session state when new text is entered
-if chinese_text and st.session_state.get('last_input') != chinese_text:
-    st.session_state.clear()
-    st.session_state.last_input = chinese_text
-
 if st.button("Translate and Generate Speech"):
+    # Clear session state when new text is entered
+    if chinese_text and st.session_state.get('last_input') != chinese_text:
+        st.session_state.clear()
+        st.session_state.translation_done = False
+        st.session_state.last_input = chinese_text
+
     if chinese_text:
         with st.spinner("Processing..."):
             # Store results in session state
-            if 'translation_done' not in st.session_state:
+            if st.session_state.translation_done == False:
                 # Translate text
                 english_text = translate_text(chinese_text)
                 
