@@ -34,10 +34,10 @@ def translate_text(chinese_text):
     )
     return response.choices[0].message.content
 
-def generate_speech(text):
+def generate_speech(text, voice):
     response = client.audio.speech.create(
         model="tts-1",
-        voice="onyx",
+        voice=voice,
         input=text
     )
     
@@ -117,6 +117,12 @@ st.title("English Learning Assistant")
 # Text input
 chinese_text = st.text_area("Enter Chinese text:", height=150)
 
+# Dropdown for voice selection
+voice = st.selectbox(
+    "Select Voice:",
+    ["nova", "shimmer", "echo", "onyx", "fable", "alloy", "ash", "sage", "coral"]
+)
+
 if st.button("Translate and Generate Speech"):
     # Clear session state when new text is entered
     if chinese_text and st.session_state.get('last_input') != chinese_text:
@@ -132,7 +138,7 @@ if st.button("Translate and Generate Speech"):
                 english_text = translate_text(chinese_text)
                 
                 # Generate speech for full text
-                audio_bytes = generate_speech(english_text)
+                audio_bytes = generate_speech(english_text, voice)
                 
                 # Split into segments
                 segments = split_text_and_audio(english_text, audio_bytes)
