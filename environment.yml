@@ -10,3 +10,4 @@ dependencies:
   - nltk
   - python-dotenv
   - ffmpeg
+  - yt-dlp
