@@ -5,3 +5,4 @@ nltk
 python-dotenv
 ffmpeg-python
 yt-dlp
+spacy
