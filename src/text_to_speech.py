@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import time
 import zipfile
-from .utils import generate_speech, split_text_and_audio, save_audio, get_openai_client
+from .utils import generate_speech, split_audio_file, save_audio, get_openai_client
 
 def translate_text(chinese_text):
     client = get_openai_client()
@@ -42,10 +42,10 @@ def process_text_to_speech(chinese_text, voice):
             english_text = translate_text(chinese_text)
             
             # Generate speech for full text
-            audio_bytes = generate_speech(english_text, voice)
+            audio_file = generate_speech(english_text, voice)
             
             # Split into segments
-            segments = split_text_and_audio(english_text, audio_bytes)
+            segments = split_audio_file(audio_file, english_text)
             
             # Create downloads directory if it doesn't exist
             os.makedirs("downloads", exist_ok=True)
@@ -56,7 +56,7 @@ def process_text_to_speech(chinese_text, voice):
             # Store results in session state
             st.session_state.timestamp = timestamp
             st.session_state.english_text = english_text
-            st.session_state.audio_bytes = audio_bytes
+            st.session_state.audio_file = audio_file
             st.session_state.segments = segments
             st.session_state.translation_done = True
 
@@ -64,7 +64,7 @@ def process_text_to_speech(chinese_text, voice):
 
 def create_output_files():
     timestamp = st.session_state.timestamp
-    audio_bytes = st.session_state.audio_bytes
+    audio_file = st.session_state.audio_file
     segments = st.session_state.segments
     english_text = st.session_state.english_text
 
@@ -83,12 +83,7 @@ def create_output_files():
         os.remove(text_path)
 
         # Add full audio
-        full_audio_path = f"downloads/full_audio_{timestamp}.mp3"
-        with open(full_audio_path, 'wb') as f:
-            audio_bytes.seek(0)
-            f.write(audio_bytes.read())
-        zipf.write(full_audio_path, f"full_audio_{timestamp}.mp3")
-        os.remove(full_audio_path)
+        zipf.write(audio_file, f"full_audio_{timestamp}.mp3")
 
         # Add segment files
         for i, (sentence, segment_bytes) in enumerate(segments):
@@ -96,6 +91,9 @@ def create_output_files():
             save_audio(segment_bytes, segment_path)
             zipf.write(segment_path, f"segment_{timestamp}_{i}.mp3")
             os.remove(segment_path)
+
+    # Cleanup
+    os.remove(audio_file)
 
     # Provide download button
     with open(zip_path, 'rb') as f:

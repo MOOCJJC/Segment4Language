@@ -5,9 +5,13 @@ import time
 import tempfile
 import zipfile
 import yt_dlp
-import nltk
 from pydub import AudioSegment
-from .utils import generate_speech, split_text_and_audio, save_audio, transcribe_audio
+from .utils import (
+    generate_speech,
+    save_audio,
+    transcribe_audio,
+    split_audio_file  # Only import what we need
+)
 
 def download_youtube_audio(url):
     temp_dir = "temp_downloads"
@@ -37,35 +41,6 @@ def extract_audio_segment(audio_file, start_time, end_time):
     temp_segment = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
     segment.export(temp_segment.name, format="mp3")
     return temp_segment.name
-
-def split_audio_file(audio_file, transcription):
-    """Split an audio file into segments based on transcription sentences"""
-    sentences = nltk.sent_tokenize(transcription)
-    
-    audio = AudioSegment.from_mp3(audio_file)
-    total_duration = len(audio)
-    char_duration = total_duration / len(transcription)
-    
-    audio_segments = []
-    start_pos = 0
-    
-    for sentence in sentences:
-        duration = len(sentence) * char_duration
-        end_pos = min(start_pos + duration, total_duration)
-        
-        segment = audio[start_pos:end_pos]
-        
-        segment_byte_io = io.BytesIO()
-        segment.export(segment_byte_io, format='mp3')
-        segment_bytes = segment_byte_io.getvalue()
-        
-        audio_segments.append((sentence, segment_bytes))
-        start_pos = end_pos
-        
-        if start_pos >= total_duration:
-            break
-    
-    return audio_segments
 
 def render_youtube_processor_tab():
     st.header("YouTube Audio Processor")
@@ -133,9 +108,14 @@ def process_audio_segment(start_time, end_time, process_method, voice=None):
         transcription = transcribe_audio(segment_file)
         
         if process_method == "Generate New Audio with TTS":
-            audio_bytes = generate_speech(transcription, voice)
-            segments = split_text_and_audio(transcription, audio_bytes)
+            # Generate new audio file with TTS
+            tts_file = generate_speech(transcription, voice)
+            # Split the TTS audio
+            segments = split_audio_file(tts_file, transcription)
+            # Clean up TTS file
+            os.remove(tts_file)
         else:
+            # Use original audio
             segments = split_audio_file(segment_file, transcription)
         
         st.subheader("Transcription:")
