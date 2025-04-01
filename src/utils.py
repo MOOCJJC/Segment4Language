@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
-
 def get_openai_client():
-    return openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+    openai.api_key = os.getenv('OPENAI_API_KEY')
+    return openai
 
 def generate_speech(text, voice):
     """Generate speech in MP3 format and return as a temporary file path"""
